@@ -9,9 +9,14 @@ DOCKER_IMAGE ?= rag-note
 
 # ---- 开发 ----
 
-# 启动后端（本地开发，前端用代理连 8080）
+# 启动后端（前端构建到 web/static，Go 服务统一托管）
 dev: build-frontend
-	@echo "==> Starting server on :8080"
+	@echo ""
+	@echo "  ╔══════════════════════════════════════╗"
+	@echo "  ║  🌐  http://localhost:8080          ║"
+	@echo "  ║  📝  RAG Note (Go + Vue)            ║"
+	@echo "  ╚══════════════════════════════════════╝"
+	@echo ""
 	@go run $(GO_SRC)
 
 # 启动前端开发服务器（:5173，API 代理到 :8080）
