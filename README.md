@@ -154,3 +154,4 @@ go run ./cmd/seednotes
 - Goldmark：<https://github.com/yuin/goldmark>
 - Ollama API：<https://docs.ollama.com/api>
 - RAG 论文（NeurIPS 2020）：<https://papers.nips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html>
+# ci trigger
