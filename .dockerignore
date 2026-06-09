@@ -1,0 +1,37 @@
+# Git
+.git/
+.gitignore
+
+# macOS
+.DS_Store
+
+# Database files
+*.db
+
+# Cache
+.cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Node
+web/frontend/node_modules/
+web/frontend/dist/
+
+# Go build artifacts
+note
+cmd/server/server
+cmd/seednotes/seednotes
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# CI
+.github/
+
+# Docs
+progress-report-ppt-outline.md
+progress-report-script.md

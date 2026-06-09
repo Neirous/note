@@ -16,6 +16,9 @@ note
 cmd/server/server
 cmd/seednotes/seednotes
 
+# Env
+.env
+
 # Node
 web/frontend/node_modules/
 web/frontend/dist/
