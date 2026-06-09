@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Database files
+*.db
+
+# Cache
+.cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Go build output
+note
+cmd/server/server
+cmd/seednotes/seednotes
+
+# Node
+web/frontend/node_modules/
+web/frontend/dist/
