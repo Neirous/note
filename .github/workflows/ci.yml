@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    # 所有分支 push 都跑测试，方便开发时自查
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -12,7 +12,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # Job 1: Go test
+  # Job 1: Go test（所有 push 和 PR 都跑）
   test:
     runs-on: ubuntu-latest
     steps:
@@ -25,10 +25,10 @@ jobs:
       - name: Run tests
         run: go test ./...
 
-  # Job 2: Build and push Docker image (only on push to main)
+  # Job 2: 构建并推送 Docker 镜像（仅在 main 分支 push 时执行，即 PR 合并后）
   build-and-push:
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
