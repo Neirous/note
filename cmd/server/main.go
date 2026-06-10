@@ -19,12 +19,21 @@ import (
 	"note/internal/store"
 )
 
+// 构建时通过 -ldflags 注入
+var (
+	gitBranch = "unknown"
+	gitCommit = "unknown"
+	buildDate = "unknown"
+)
+
 type modelClient interface {
 	Embed(ctx context.Context, text string) ([]float64, error)
 	Generate(ctx context.Context, prompt string) (string, error)
 }
 
 func main() {
+	log.Printf("note server [%s] %s built at %s", gitBranch, gitCommit, buildDate)
+
 	addr := getenv("APP_ADDR", ":8080")
 	dsn := getenv("APP_DSN", "file:notes.db?_pragma=busy_timeout(5000)")
 	provider := strings.ToLower(getenv("LLM_PROVIDER", "dashscope"))
