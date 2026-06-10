@@ -6,6 +6,8 @@ SEED_SRC  := ./cmd/seednotes
 VITE_DIR  := web/frontend
 STATIC_DIR := web/static
 DOCKER_IMAGE ?= rag-note
+ALIYUN_REGISTRY := crpi-51pd4blge4jwd9y0.cn-hangzhou.personal.cr.aliyuncs.com
+ALIYUN_NAMESPACE := hakuming-images
 
 # ---- 开发 ----
 
@@ -68,9 +70,15 @@ seed:
 
 # ---- Docker ----
 
+# 本地构建（基础镜像走阿里云）
 docker-build:
-	@echo "==> Building Docker image: $(DOCKER_IMAGE)"
-	@docker build -t $(DOCKER_IMAGE) .
+	@echo "==> Building Docker image (Aliyun registry): $(DOCKER_IMAGE)"
+	@docker build -f Dockerfile.local -t $(DOCKER_IMAGE) .
+
+# 登录阿里云镜像仓库
+docker-login:
+	@echo "==> Logging into Alibaba Cloud registry..."
+	@docker login --username=$(ALIYUN_USERNAME) $(ALIYUN_REGISTRY)
 
 docker-run:
 	@echo "==> Running Docker container on :8080"
@@ -115,7 +123,8 @@ help:
 	@echo "  make test             - Run all tests"
 	@echo "  make test-cover       - Run tests with coverage HTML report"
 	@echo "  make seed             - Generate demo notes"
-	@echo "  make docker-build     - Build Docker image"
+	@echo "  make docker-build     - Build Docker image (local, via Aliyun)"
+	@echo "  make docker-login     - Log into Alibaba Cloud registry"
 	@echo "  make docker-run       - Start Docker container"
 	@echo "  make docker-stop      - Stop & remove Docker container"
 	@echo "  make fmt              - go fmt ./..."
