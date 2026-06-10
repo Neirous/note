@@ -1,4 +1,4 @@
-.PHONY: all build test clean dev dev-frontend docker-build docker-run seed fmt lint help
+.PHONY: all build test clean dev dev-frontend docker-build docker-login docker-push docker-release docker-run docker-stop seed fmt lint help
 
 APP_NAME  := note
 GO_SRC    := ./cmd/server
@@ -6,8 +6,10 @@ SEED_SRC  := ./cmd/seednotes
 VITE_DIR  := web/frontend
 STATIC_DIR := web/static
 DOCKER_IMAGE ?= rag-note
+TAG ?= latest
 ALIYUN_REGISTRY := crpi-51pd4blge4jwd9y0.cn-hangzhou.personal.cr.aliyuncs.com
 ALIYUN_NAMESPACE := hakuming-images
+ALIYUN_IMAGE := $(ALIYUN_REGISTRY)/$(ALIYUN_NAMESPACE)/$(APP_NAME):$(TAG)
 
 # ---- 开发 ----
 
@@ -72,13 +74,24 @@ seed:
 
 # 本地构建（基础镜像走阿里云）
 docker-build:
-	@echo "==> Building Docker image (Aliyun registry): $(DOCKER_IMAGE)"
+	@echo "==> Building Docker image: $(DOCKER_IMAGE)"
 	@docker build -f Dockerfile.local -t $(DOCKER_IMAGE) .
 
 # 登录阿里云镜像仓库
 docker-login:
 	@echo "==> Logging into Alibaba Cloud registry..."
-	@docker login --username=$(ALIYUN_USERNAME) $(ALIYUN_REGISTRY)
+	@docker login $(ALIYUN_REGISTRY)
+
+# 推送镜像到阿里云
+docker-push:
+	@echo "==> Pushing to Alibaba Cloud: $(ALIYUN_IMAGE)"
+	@docker tag $(DOCKER_IMAGE) $(ALIYUN_IMAGE)
+	@docker push $(ALIYUN_IMAGE)
+	@echo "==> Done: $(ALIYUN_IMAGE)"
+
+# 一键构建 + 推送
+docker-release: docker-build docker-push
+	@echo "==> Release complete: $(ALIYUN_IMAGE)"
 
 docker-run:
 	@echo "==> Running Docker container on :8080"
@@ -125,6 +138,8 @@ help:
 	@echo "  make seed             - Generate demo notes"
 	@echo "  make docker-build     - Build Docker image (local, via Aliyun)"
 	@echo "  make docker-login     - Log into Alibaba Cloud registry"
+	@echo "  make docker-push      - Push image to Alibaba Cloud"
+	@echo "  make docker-release   - Build + push (one command)"
 	@echo "  make docker-run       - Start Docker container"
 	@echo "  make docker-stop      - Stop & remove Docker container"
 	@echo "  make fmt              - go fmt ./..."
