@@ -1,0 +1,35 @@
+# 本地构建用 — 基础镜像从阿里云拉取，不走 Docker Hub
+ARG REGISTRY=crpi-51pd4blge4jwd9y0.cn-hangzhou.personal.cr.aliyuncs.com/hakuming-images
+
+# Stage 1: Build Vue frontend
+FROM ${REGISTRY}/node:22-alpine AS frontend
+WORKDIR /src
+COPY web/frontend/package.json web/frontend/package-lock.json ./
+RUN npm ci
+COPY web/frontend/ ./
+RUN npm run build
+
+# Stage 2: Build Go server
+FROM ${REGISTRY}/golang:1.25-alpine AS backend
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+COPY --from=frontend /static ./web/static
+RUN CGO_ENABLED=0 go build -o /app/server ./cmd/server
+
+# Stage 3: Runtime
+FROM ${REGISTRY}/alpine:3.22
+RUN apk add --no-cache ca-certificates tzdata
+COPY --from=backend /app/server /app/server
+COPY --from=frontend /static /app/web/static
+
+WORKDIR /app
+EXPOSE 8080
+
+ENV APP_ADDR=:8080
+ENV APP_DSN=file:/app/data/notes.db?_pragma=busy_timeout(5000)
+
+VOLUME ["/app/data"]
+
+ENTRYPOINT ["/app/server"]
