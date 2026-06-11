@@ -10,9 +10,9 @@ import "api/proto/common/v1/common.proto";
 service KnowledgeService {
   rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
   rpc ListDueCards(ListDueCardsRequest) returns (ListDueCardsResponse);
-  rpc GetCard(GetCardRequest) returns (note.common.v1.KnowledgeCard);
-  rpc CreateCard(CreateCardRequest) returns (note.common.v1.KnowledgeCard);
-  rpc UpdateCard(UpdateCardRequest) returns (note.common.v1.KnowledgeCard);
+  rpc GetCard(GetCardRequest) returns (.note.common.v1.KnowledgeCard);
+  rpc CreateCard(CreateCardRequest) returns (.note.common.v1.KnowledgeCard);
+  rpc UpdateCard(UpdateCardRequest) returns (.note.common.v1.KnowledgeCard);
   rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
   rpc ReviewCard(ReviewCardRequest) returns (ReviewCardResponse);
 }
@@ -22,10 +22,10 @@ message ListCardsRequest {
   string status = 2;
   bool include_archived = 3;
 }
-message ListCardsResponse { repeated note.common.v1.KnowledgeCard cards = 1; }
+message ListCardsResponse { repeated .note.common.v1.KnowledgeCard cards = 1; }
 
 message ListDueCardsRequest {}
-message ListDueCardsResponse { repeated note.common.v1.KnowledgeCard cards = 1; }
+message ListDueCardsResponse { repeated .note.common.v1.KnowledgeCard cards = 1; }
 
 message GetCardRequest { int64 id = 1; }
 
@@ -37,7 +37,7 @@ message DeleteCardResponse { bool ok = 1; }
 
 message ReviewCardRequest { int64 id = 1; bool remembered = 2; }
 message ReviewCardResponse {
-  note.common.v1.KnowledgeCard card = 1;
+  .note.common.v1.KnowledgeCard card = 1;
   int32 stage = 2;
   bool mastered = 3;
 }

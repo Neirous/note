@@ -19,8 +19,8 @@ message DashboardResponse {
   repeated ChartPoint note_status_pie = 2;
   repeated ChartPoint overview_bars = 3;
   repeated ChartPoint note_trend = 4;
-  repeated note.common.v1.NoteReference unfinished_notes = 5;
-  repeated note.common.v1.NoteReference recent_activity = 6;
+  repeated .note.common.v1.NoteReference unfinished_notes = 5;
+  repeated .note.common.v1.NoteReference recent_activity = 6;
 }
 
 message ChartPoint { string label = 1; int32 value = 2; }
@@ -55,7 +55,7 @@ message QualityEvaluationResponse {
 }
 
 message QualityEvaluationItem {
-  note.common.v1.NoteReference note = 1;
+  .note.common.v1.NoteReference note = 1;
   int32 score = 2;
   repeated string issues = 3;
   string summary = 4;
