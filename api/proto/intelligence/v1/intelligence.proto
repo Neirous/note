@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package note.intelligence.v1;
+
+option go_package = "note/api/proto/intelligence/v1;intelligencev1";
+
+import "api/proto/common/v1/common.proto";
+
+// IntelligenceService AI 智能洞察服务。
+service IntelligenceService {
+  rpc GetNoteInsights(GetNoteInsightsRequest) returns (NoteInsightsResponse);
+  rpc SuggestTags(SuggestTagsRequest) returns (SuggestTagsResponse);
+  rpc GetNoteRecommendations(GetNoteRecommendationsRequest) returns (NoteRecommendationsResponse);
+  rpc GetNoteLinks(GetNoteLinksRequest) returns (NoteLinksResponse);
+
+  // Review Questions
+  rpc ListReviewQuestions(ListReviewQuestionsRequest) returns (ListReviewQuestionsResponse);
+  rpc CreateReviewQuestion(CreateReviewQuestionRequest) returns (note.common.v1.ReviewQuestion);
+  rpc GenerateReviewQuestions(GenerateReviewQuestionsRequest) returns (GenerateReviewQuestionsResponse);
+  rpc UpdateReviewQuestion(UpdateReviewQuestionRequest) returns (note.common.v1.ReviewQuestion);
+  rpc DeleteReviewQuestion(DeleteReviewQuestionRequest) returns (DeleteReviewQuestionResponse);
+  rpc GetDailyReview(GetDailyReviewRequest) returns (DailyReviewResponse);
+
+  // Recommendations
+  rpc CreateAIRecommendation(CreateAIRecommendationRequest) returns (AIRecommendationResponse);
+  rpc ListRecommendationSessions(ListRecommendationSessionsRequest) returns (ListRecommendationSessionsResponse);
+  rpc DeleteRecommendationSession(DeleteRecommendationSessionRequest) returns (DeleteRecommendationSessionResponse);
+
+  // Research Sessions
+  rpc CreateResearchSession(CreateResearchSessionRequest) returns (ResearchSessionResponse);
+  rpc ListResearchSessions(ListResearchSessionsRequest) returns (ListResearchSessionsResponse);
+  rpc DeleteResearchSession(DeleteResearchSessionRequest) returns (DeleteResearchSessionResponse);
+
+  // Writing
+  rpc CreateWeeklyReport(CreateWeeklyReportRequest) returns (WeeklyReportResponse);
+
+  // Optimize
+  rpc OptimizeNote(OptimizeNoteRequest) returns (OptimizeNoteResponse);
+}
+
+message GetNoteInsightsRequest { int64 note_id = 1; bool cached = 2; }
+message NoteInsightsResponse {
+  string summary = 1;
+  repeated string outline = 2;
+  repeated string keywords = 3;
+  repeated string suggested_tags = 4;
+  int32 quality_score = 5;
+  repeated QualityIssue quality_issues = 6;
+  repeated note.common.v1.ReviewQuestion flashcards = 7;
+  repeated note.common.v1.NoteReference recommendations = 8;
+  NoteLinksResponse links = 9;
+  bool used_ai = 10;
+}
+
+message QualityIssue {
+  string type = 1;
+  string severity = 2;
+  string message = 3;
+  string suggestion = 4;
+}
+
+message SuggestTagsRequest { int64 note_id = 1; }
+message SuggestTagsResponse { repeated string tags = 1; bool used_ai = 2; }
+
+message GetNoteRecommendationsRequest { int64 note_id = 1; }
+message NoteRecommendationsResponse { repeated note.common.v1.NoteReference notes = 1; }
+
+message GetNoteLinksRequest { int64 note_id = 1; }
+message NoteLinksResponse {
+  repeated note.common.v1.NoteReference incoming = 1;
+  repeated note.common.v1.NoteReference outgoing = 2;
+}
+
+message ListReviewQuestionsRequest { int64 note_id = 1; }
+message ListReviewQuestionsResponse { repeated note.common.v1.ReviewQuestion questions = 1; }
+
+message CreateReviewQuestionRequest { int64 note_id = 1; string question = 2; string answer = 3; string source = 4; }
+message GenerateReviewQuestionsRequest { int64 note_id = 1; int32 count = 2; }
+message GenerateReviewQuestionsResponse { repeated note.common.v1.ReviewQuestion created = 1; }
+
+message UpdateReviewQuestionRequest { int64 note_id = 1; int64 question_id = 2; string question = 3; string answer = 4; }
+message DeleteReviewQuestionRequest { int64 note_id = 1; int64 question_id = 2; }
+message DeleteReviewQuestionResponse { bool ok = 1; }
+
+message GetDailyReviewRequest {}
+message DailyReviewResponse {
+  repeated note.common.v1.NoteReference recommended_next = 1;
+  repeated note.common.v1.ReviewQuestion due_questions = 2;
+}
+
+message CreateAIRecommendationRequest { string topic = 1; repeated int64 note_ids = 2; }
+message AIRecommendationResponse {
+  int64 id = 1;
+  string topic = 2;
+  string summary = 3;
+  repeated note.common.v1.NoteReference references = 4;
+  string created_at = 5;
+}
+
+message ListRecommendationSessionsRequest { int32 limit = 1; }
+message ListRecommendationSessionsResponse { repeated RecommendationSessionHistoryItem sessions = 1; }
+message RecommendationSessionHistoryItem {
+  int64 id = 1;
+  string topic = 2;
+  AIRecommendationResponse result = 3;
+  string created_at = 4;
+}
+message DeleteRecommendationSessionRequest { int64 id = 1; }
+message DeleteRecommendationSessionResponse { bool ok = 1; }
+
+message CreateResearchSessionRequest { string topic = 1; repeated int64 note_ids = 2; }
+message ResearchSessionResponse {
+  int64 id = 1;
+  string topic = 2;
+  string summary = 3;
+  repeated string outline = 4;
+  repeated string gaps = 5;
+  repeated string questions = 6;
+  repeated string suggested_notes = 7;
+  repeated note.common.v1.NoteReference related_notes = 8;
+  bool used_ai = 9;
+  string created_at = 10;
+}
+
+message ListResearchSessionsRequest { int32 limit = 1; }
+message ListResearchSessionsResponse { repeated ResearchSessionHistoryItem sessions = 1; }
+message ResearchSessionHistoryItem {
+  int64 id = 1;
+  string topic = 2;
+  ResearchSessionResponse result = 3;
+  string created_at = 4;
+}
+message DeleteResearchSessionRequest { int64 id = 1; }
+message DeleteResearchSessionResponse { bool ok = 1; }
+
+message CreateWeeklyReportRequest {
+  string title = 1;
+  repeated int64 note_ids = 2;
+  repeated FileSource file_sources = 3;
+}
+message FileSource { string name = 1; string content = 2; }
+message WeeklyReportResponse {
+  note.common.v1.Note note = 1;
+  repeated note.common.v1.NoteReference sources = 2;
+  repeated FileSource files = 3;
+}
+
+message OptimizeNoteRequest { int64 note_id = 1; string title = 2; string markdown = 3; }
+message OptimizeNoteResponse {
+  string markdown = 1;
+  string html = 2;
+  repeated note.common.v1.NoteReference references = 3;
+}
