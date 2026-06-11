@@ -1,8 +1,7 @@
 .PHONY: all build test clean dev dev-frontend docker-build docker-login docker-push docker-release docker-run docker-stop seed fmt lint update help
 
 APP_NAME  := note
-GO_SRC    := ./cmd/server
-SEED_SRC  := ./cmd/seednotes
+GO_SRC    := ./cmd/note
 VITE_DIR  := web/frontend
 STATIC_DIR := web/static
 DOCKER_IMAGE ?= rag-note
@@ -11,14 +10,14 @@ ALIYUN_REGISTRY := crpi-51pd4blge4jwd9y0.cn-hangzhou.personal.cr.aliyuncs.com
 ALIYUN_NAMESPACE := hakuming-images
 ALIYUN_IMAGE := $(ALIYUN_REGISTRY)/$(ALIYUN_NAMESPACE)/$(APP_NAME):$(TAG)
 
-# 版本信息（注入到二进制）
+# 版本信息（注入到 gateway 包）
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 GIT_COMMIT := $(shell git rev-parse HEAD)
 BUILD_DATE := $(shell date -u +%Y-%m-%d.%H:%M:%S)
 LDFLAGS := -s -w \
-	-X main.gitBranch=$(GIT_BRANCH) \
-	-X main.gitCommit=$(GIT_COMMIT) \
-	-X main.buildDate=$(BUILD_DATE)
+	-X note/internal/gateway.GitBranch=$(GIT_BRANCH) \
+	-X note/internal/gateway.GitCommit=$(GIT_COMMIT) \
+	-X note/internal/gateway.BuildDate=$(BUILD_DATE)
 
 # ---- 开发 ----
 
@@ -31,7 +30,7 @@ dev: build-frontend
 	@echo "  ║  $(GIT_BRANCH) $(shell echo $(GIT_COMMIT) | cut -c1-7)                 ║"
 	@echo "  ╚══════════════════════════════════════╝"
 	@echo ""
-	@go run $(GO_SRC)
+	@go run $(GO_SRC) server
 
 # 启动前端开发服务器（:5173，API 代理到 :8080）
 dev-frontend:
@@ -89,7 +88,7 @@ update:
 
 seed:
 	@echo "==> Generating demo notes..."
-	@go run $(SEED_SRC)
+	@go run $(GO_SRC) seed
 
 # ---- Docker ----
 

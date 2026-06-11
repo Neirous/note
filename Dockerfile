@@ -15,7 +15,7 @@ RUN go mod download
 COPY . .
 # Copy built frontend assets to where Go expects them
 COPY --from=frontend /static ./web/static
-RUN CGO_ENABLED=0 go build -o /app/server ./cmd/server
+RUN CGO_ENABLED=0 go build -o /app/server ./cmd/note
 
 # Stage 3: Runtime
 FROM alpine:3.22
