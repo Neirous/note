@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package note.common.v1;
+
+option go_package = "note/api/proto/common/v1;commonv1";
+
+// Note 是所有笔记服务的核心实体。
+message Note {
+  int64 id = 1;
+  int64 parent_id = 2;
+  string title = 3;
+  string markdown = 4;
+  string html = 5;
+  repeated string tags = 6;
+  string status = 7;          // "unfinished" | "completed"
+  bool is_pinned = 8;
+  bool is_archived = 9;
+  string created_at = 10;
+  string updated_at = 11;
+}
+
+message NoteBlock {
+  int64 id = 1;
+  int64 note_id = 2;
+  int32 position = 3;
+  int32 level = 4;
+  string type = 5;            // paragraph | todo | heading1 | code | quote | table
+  string content = 6;
+  bool checked = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message Chunk {
+  int64 id = 1;
+  int64 note_id = 2;
+  int32 idx = 3;
+  string content = 4;
+  repeated float embedding = 5;
+}
+
+message KnowledgeCard {
+  int64 id = 1;
+  string front = 2;
+  string back = 3;
+  repeated string tags = 4;
+  string status = 5;          // active | archived | mastered
+  int32 review_stage = 6;
+  string last_reviewed_at = 7;
+  string next_review_at = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message ReviewQuestion {
+  int64 id = 1;
+  int64 note_id = 2;
+  string question = 3;
+  string answer = 4;
+  string source = 5;          // manual | ai
+}
+
+message NoteReference {
+  int64 id = 1;
+  string title = 2;
+  string path = 3;
+  repeated string tags = 4;
+}
+
+message Pagination {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message Error {
+  string message = 1;
+  int32 code = 2;
+}

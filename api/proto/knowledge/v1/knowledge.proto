@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package note.knowledge.v1;
+
+option go_package = "note/api/proto/knowledge/v1;knowledgev1";
+
+import "api/proto/common/v1/common.proto";
+
+// KnowledgeService 知识卡片与间隔重复复习服务。
+service KnowledgeService {
+  rpc ListCards(ListCardsRequest) returns (ListCardsResponse);
+  rpc ListDueCards(ListDueCardsRequest) returns (ListDueCardsResponse);
+  rpc GetCard(GetCardRequest) returns (note.common.v1.KnowledgeCard);
+  rpc CreateCard(CreateCardRequest) returns (note.common.v1.KnowledgeCard);
+  rpc UpdateCard(UpdateCardRequest) returns (note.common.v1.KnowledgeCard);
+  rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
+  rpc ReviewCard(ReviewCardRequest) returns (ReviewCardResponse);
+}
+
+message ListCardsRequest {
+  string query = 1;
+  string status = 2;
+  bool include_archived = 3;
+}
+message ListCardsResponse { repeated note.common.v1.KnowledgeCard cards = 1; }
+
+message ListDueCardsRequest {}
+message ListDueCardsResponse { repeated note.common.v1.KnowledgeCard cards = 1; }
+
+message GetCardRequest { int64 id = 1; }
+
+message CreateCardRequest { string front = 1; string back = 2; repeated string tags = 3; string status = 4; }
+message UpdateCardRequest { int64 id = 1; string front = 2; string back = 3; repeated string tags = 4; string status = 5; }
+
+message DeleteCardRequest { int64 id = 1; }
+message DeleteCardResponse { bool ok = 1; }
+
+message ReviewCardRequest { int64 id = 1; bool remembered = 2; }
+message ReviewCardResponse {
+  note.common.v1.KnowledgeCard card = 1;
+  int32 stage = 2;
+  bool mastered = 3;
+}

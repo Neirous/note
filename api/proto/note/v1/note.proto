@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package note.note.v1;
+
+option go_package = "note/api/proto/note/v1;notev1";
+
+import "api/proto/common/v1/common.proto";
+
+// NoteService 笔记核心 CRUD 服务。
+service NoteService {
+  rpc ListNotes(ListNotesRequest) returns (ListNotesResponse);
+  rpc GetNote(GetNoteRequest) returns (note.common.v1.Note);
+  rpc CreateNote(CreateNoteRequest) returns (note.common.v1.Note);
+  rpc UpdateNote(UpdateNoteRequest) returns (note.common.v1.Note);
+  rpc DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse);
+  rpc PinNote(PinNoteRequest) returns (note.common.v1.Note);
+  rpc ArchiveNote(ArchiveNoteRequest) returns (note.common.v1.Note);
+  rpc SetNoteStatus(SetNoteStatusRequest) returns (note.common.v1.Note);
+  rpc DuplicateNote(DuplicateNoteRequest) returns (note.common.v1.Note);
+  rpc ExportNote(ExportNoteRequest) returns (ExportNoteResponse);
+
+  // Tags
+  rpc ListTags(ListTagsRequest) returns (ListTagsResponse);
+  rpc DeleteTag(DeleteTagRequest) returns (DeleteTagResponse);
+
+  // Blocks
+  rpc ListBlocks(ListBlocksRequest) returns (ListBlocksResponse);
+  rpc ReplaceBlocks(ReplaceBlocksRequest) returns (ReplaceBlocksResponse);
+
+  // Template & Import
+  rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse);
+  rpc CreateFromTemplate(CreateFromTemplateRequest) returns (note.common.v1.Note);
+  rpc ImportNote(ImportNoteRequest) returns (note.common.v1.Note);
+
+  // Render
+  rpc RenderMarkdown(RenderMarkdownRequest) returns (RenderMarkdownResponse);
+
+  // Tasks
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+}
+
+message ListNotesRequest {
+  string query = 1;
+  string tag = 2;
+  bool include_archived = 3;
+  bool only_archived = 4;
+  bool lite = 5;
+}
+
+message ListNotesResponse {
+  repeated note.common.v1.Note notes = 1;
+}
+
+message GetNoteRequest { int64 id = 1; }
+
+message CreateNoteRequest {
+  string title = 1;
+  string markdown = 2;
+  int64 parent_id = 3;
+  repeated string tags = 4;
+}
+
+message UpdateNoteRequest {
+  int64 id = 1;
+  string title = 2;
+  string markdown = 3;
+  int64 parent_id = 4;
+  repeated string tags = 5;
+}
+
+message DeleteNoteRequest { int64 id = 1; }
+message DeleteNoteResponse { bool ok = 1; }
+
+message PinNoteRequest { int64 id = 1; bool value = 2; }
+message ArchiveNoteRequest { int64 id = 1; bool value = 2; }
+message SetNoteStatusRequest { int64 id = 1; string status = 2; }
+message DuplicateNoteRequest { int64 id = 1; }
+
+message ExportNoteRequest { int64 id = 1; }
+message ExportNoteResponse { string markdown = 1; string filename = 2; }
+
+message ListTagsRequest {}
+message ListTagsResponse { repeated string tags = 1; }
+message DeleteTagRequest { string tag = 1; }
+message DeleteTagResponse { bool ok = 1; }
+
+message ListBlocksRequest { int64 note_id = 1; }
+message ListBlocksResponse { repeated note.common.v1.NoteBlock blocks = 1; }
+
+message ReplaceBlocksRequest {
+  int64 note_id = 1;
+  repeated note.common.v1.NoteBlock blocks = 2;
+}
+message ReplaceBlocksResponse { note.common.v1.Note note = 1; repeated note.common.v1.NoteBlock blocks = 2; }
+
+message ListTemplatesRequest {}
+message ListTemplatesResponse { repeated Template templates = 1; }
+message Template { string key = 1; string title = 2; string description = 3; }
+
+message CreateFromTemplateRequest { string key = 1; string title = 2; }
+message ImportNoteRequest { string title = 1; string markdown = 2; repeated string tags = 3; }
+
+message RenderMarkdownRequest { string markdown = 1; }
+message RenderMarkdownResponse { string html = 1; }
+
+message ListTasksRequest {}
+message ListTasksResponse { repeated TaskItem tasks = 1; }
+message TaskItem {
+  int64 note_id = 1;
+  string note_title = 2;
+  string content = 3;
+  bool checked = 4;
+}

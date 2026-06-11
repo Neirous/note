@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package note.workspace.v1;
+
+option go_package = "note/api/proto/workspace/v1;workspacev1";
+
+import "api/proto/common/v1/common.proto";
+
+// WorkspaceService 工作空间仪表盘与图谱服务。
+service WorkspaceService {
+  rpc GetDashboard(GetDashboardRequest) returns (DashboardResponse);
+  rpc GetGraph(GetGraphRequest) returns (GraphResponse);
+  rpc EvaluateQuality(EvaluateQualityRequest) returns (QualityEvaluationResponse);
+}
+
+message GetDashboardRequest {}
+message DashboardResponse {
+  map<string, int32> stats = 1;
+  repeated ChartPoint note_status_pie = 2;
+  repeated ChartPoint overview_bars = 3;
+  repeated ChartPoint note_trend = 4;
+  repeated note.common.v1.NoteReference unfinished_notes = 5;
+  repeated note.common.v1.NoteReference recent_activity = 6;
+}
+
+message ChartPoint { string label = 1; int32 value = 2; }
+
+message GetGraphRequest {}
+message GraphResponse {
+  repeated GraphNode nodes = 1;
+  repeated GraphEdge edges = 2;
+}
+
+message GraphNode {
+  int64 id = 1;
+  string title = 2;
+  string path = 3;
+  repeated string tags = 4;
+  int32 quality_score = 5;
+  string updated_at = 6;
+}
+
+message GraphEdge {
+  int64 source = 1;
+  int64 target = 2;
+  string type = 3;
+  double weight = 4;
+  string reason = 5;
+}
+
+message EvaluateQualityRequest { int32 limit = 1; }
+message QualityEvaluationResponse {
+  repeated QualityEvaluationItem items = 1;
+  bool used_ai = 2;
+}
+
+message QualityEvaluationItem {
+  note.common.v1.NoteReference note = 1;
+  int32 score = 2;
+  repeated string issues = 3;
+  string summary = 4;
+  string action = 5;
+  string source = 6;
+}

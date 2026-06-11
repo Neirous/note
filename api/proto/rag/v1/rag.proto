@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package note.rag.v1;
+
+option go_package = "note/api/proto/rag/v1;ragv1";
+
+import "api/proto/common/v1/common.proto";
+
+// RAGService 检索增强生成服务。
+service RAGService {
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc Ask(AskRequest) returns (AskResponse);
+  rpc IndexNote(IndexNoteRequest) returns (IndexNoteResponse);
+}
+
+message SearchRequest {
+  string query = 1;
+  int32 top_k = 2;
+  int64 anchor_note_id = 3;
+}
+
+message SearchResponse {
+  string query = 1;
+  repeated ChunkWithScore results = 2;
+}
+
+message ChunkWithScore {
+  int64 note_id = 1;
+  string note_title = 2;
+  int64 chunk_id = 3;
+  int32 index = 4;
+  string content = 5;
+  double score = 6;
+}
+
+message AskRequest {
+  string query = 1;
+  int32 top_k = 2;
+  int64 anchor_note_id = 3;
+  string mode = 4;  // empty | "library" | "assistant"
+}
+
+message AskResponse {
+  string query = 1;
+  string answer = 2;
+  repeated ChunkWithScore contexts = 3;
+}
+
+message IndexNoteRequest {
+  int64 note_id = 1;
+  string markdown = 2;
+}
+
+message IndexNoteResponse { bool ok = 1; }
