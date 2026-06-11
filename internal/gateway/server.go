@@ -1,9 +1,8 @@
-package main
+package gateway
 
 import (
 	"context"
 	"database/sql"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	_ "modernc.org/sqlite"
 
 	"note/internal/api"
@@ -19,11 +19,10 @@ import (
 	"note/internal/store"
 )
 
-// 构建时通过 -ldflags 注入
 var (
-	gitBranch = "unknown"
-	gitCommit = "unknown"
-	buildDate = "unknown"
+	GitBranch = "unknown"
+	GitCommit = "unknown"
+	BuildDate = "unknown"
 )
 
 type modelClient interface {
@@ -31,12 +30,18 @@ type modelClient interface {
 	Generate(ctx context.Context, prompt string) (string, error)
 }
 
-func main() {
-	log.Printf("note server [%s] %s built at %s", gitBranch, gitCommit, buildDate)
+func RunServer(addr, dsn, provider string) {
+	log.Infof("note server [%s] %s built at %s", GitBranch, GitCommit, BuildDate)
 
-	addr := getenv("APP_ADDR", ":8080")
-	dsn := getenv("APP_DSN", "file:notes.db?_pragma=busy_timeout(5000)")
-	provider := strings.ToLower(getenv("LLM_PROVIDER", "dashscope"))
+	if addr == "" {
+		addr = getenv("APP_ADDR", ":8080")
+	}
+	if dsn == "" {
+		dsn = getenv("APP_DSN", "file:notes.db?_pragma=busy_timeout(5000)")
+	}
+	if provider == "" {
+		provider = strings.ToLower(getenv("LLM_PROVIDER", "dashscope"))
+	}
 
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
@@ -50,13 +55,13 @@ func main() {
 	}
 
 	httpClient := &http.Client{Timeout: 60 * time.Second}
-	provider, modelClient := buildModelClient(provider, httpClient)
+	provider, mc := buildModelClient(provider, httpClient)
 	if provider == "dashscope" && os.Getenv("OPENAI_API_KEY") == "" {
-		log.Printf("warning: OPENAI_API_KEY is empty, RAG will fail until it is configured")
+		log.Warn("OPENAI_API_KEY is empty, RAG will fail until it is configured")
 	}
 
-	log.Printf("llm provider: %s", provider)
-	ragService := rag.NewService(s, modelClient, modelClient, rag.Config{
+	log.Infof("llm provider: %s", provider)
+	ragService := rag.NewService(s, mc, mc, rag.Config{
 		MaxChunkChars: 800,
 		TopK:          5,
 	})
@@ -69,7 +74,7 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("server listening on %s", addr)
+		log.Infof("server listening on %s", addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %v", err)
 		}
@@ -77,12 +82,13 @@ func main() {
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-	<-sigCh
+	sig := <-sigCh
+	log.Infof("received signal %v, shutting down...", sig)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		log.Printf("shutdown error: %v", err)
+		log.Errorf("shutdown error: %v", err)
 	}
 }
 
@@ -107,7 +113,7 @@ func buildModelClient(provider string, httpClient *http.Client) (string, modelCl
 		genModel := getenv("OLLAMA_GEN_MODEL", "qwen2.5:7b")
 		return "ollama", llm.NewOllamaClient(httpClient, baseURL, embedModel, genModel)
 	default:
-		log.Printf("warning: unknown LLM_PROVIDER=%q, fallback to dashscope", provider)
+		log.Warnf("unknown LLM_PROVIDER=%q, fallback to dashscope", provider)
 		baseURL := getenv("OPENAI_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 		apiKey := os.Getenv("OPENAI_API_KEY")
 		embedModel := getenv("OPENAI_EMBED_MODEL", "text-embedding-v3")

@@ -12,9 +12,7 @@
 .vscode/
 
 # Go build output
-note
-cmd/server/server
-cmd/seednotes/seednotes
+/note
 
 # Env
 .env
