@@ -9,14 +9,14 @@ import "api/proto/common/v1/common.proto";
 // NoteService 笔记核心 CRUD 服务。
 service NoteService {
   rpc ListNotes(ListNotesRequest) returns (ListNotesResponse);
-  rpc GetNote(GetNoteRequest) returns (note.common.v1.Note);
-  rpc CreateNote(CreateNoteRequest) returns (note.common.v1.Note);
-  rpc UpdateNote(UpdateNoteRequest) returns (note.common.v1.Note);
+  rpc GetNote(GetNoteRequest) returns (.note.common.v1.Note);
+  rpc CreateNote(CreateNoteRequest) returns (.note.common.v1.Note);
+  rpc UpdateNote(UpdateNoteRequest) returns (.note.common.v1.Note);
   rpc DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse);
-  rpc PinNote(PinNoteRequest) returns (note.common.v1.Note);
-  rpc ArchiveNote(ArchiveNoteRequest) returns (note.common.v1.Note);
-  rpc SetNoteStatus(SetNoteStatusRequest) returns (note.common.v1.Note);
-  rpc DuplicateNote(DuplicateNoteRequest) returns (note.common.v1.Note);
+  rpc PinNote(PinNoteRequest) returns (.note.common.v1.Note);
+  rpc ArchiveNote(ArchiveNoteRequest) returns (.note.common.v1.Note);
+  rpc SetNoteStatus(SetNoteStatusRequest) returns (.note.common.v1.Note);
+  rpc DuplicateNote(DuplicateNoteRequest) returns (.note.common.v1.Note);
   rpc ExportNote(ExportNoteRequest) returns (ExportNoteResponse);
 
   // Tags
@@ -29,8 +29,8 @@ service NoteService {
 
   // Template & Import
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse);
-  rpc CreateFromTemplate(CreateFromTemplateRequest) returns (note.common.v1.Note);
-  rpc ImportNote(ImportNoteRequest) returns (note.common.v1.Note);
+  rpc CreateFromTemplate(CreateFromTemplateRequest) returns (.note.common.v1.Note);
+  rpc ImportNote(ImportNoteRequest) returns (.note.common.v1.Note);
 
   // Render
   rpc RenderMarkdown(RenderMarkdownRequest) returns (RenderMarkdownResponse);
@@ -48,7 +48,7 @@ message ListNotesRequest {
 }
 
 message ListNotesResponse {
-  repeated note.common.v1.Note notes = 1;
+  repeated .note.common.v1.Note notes = 1;
 }
 
 message GetNoteRequest { int64 id = 1; }
@@ -85,13 +85,13 @@ message DeleteTagRequest { string tag = 1; }
 message DeleteTagResponse { bool ok = 1; }
 
 message ListBlocksRequest { int64 note_id = 1; }
-message ListBlocksResponse { repeated note.common.v1.NoteBlock blocks = 1; }
+message ListBlocksResponse { repeated .note.common.v1.NoteBlock blocks = 1; }
 
 message ReplaceBlocksRequest {
   int64 note_id = 1;
-  repeated note.common.v1.NoteBlock blocks = 2;
+  repeated .note.common.v1.NoteBlock blocks = 2;
 }
-message ReplaceBlocksResponse { note.common.v1.Note note = 1; repeated note.common.v1.NoteBlock blocks = 2; }
+message ReplaceBlocksResponse { .note.common.v1.Note note = 1; repeated .note.common.v1.NoteBlock blocks = 2; }
 
 message ListTemplatesRequest {}
 message ListTemplatesResponse { repeated Template templates = 1; }

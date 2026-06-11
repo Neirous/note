@@ -1,4 +1,4 @@
-.PHONY: all build test clean dev dev-frontend docker-build docker-login docker-push docker-release docker-run docker-stop seed fmt lint update help
+.PHONY: all build test clean dev dev-frontend docker-build docker-login docker-push docker-release docker-run docker-stop seed fmt lint update help proto grpc-dev
 
 APP_NAME  := note
 GO_SRC    := ./cmd/note
@@ -176,6 +176,14 @@ help:
 	@echo ""
 
 # ---- 版本信息 ----
+
+proto:
+	@echo "==> Generating proto code..."
+	@protoc -I . --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative api/proto/common/v1/common.proto api/proto/note/v1/note.proto api/proto/intelligence/v1/intelligence.proto api/proto/knowledge/v1/knowledge.proto api/proto/workspace/v1/workspace.proto api/proto/rag/v1/rag.proto
+
+grpc-dev:
+	@echo "==> Starting gRPC server on :9090"
+	@go run $(GO_SRC) grpc
 
 version:
 	@echo "branch:  $(GIT_BRANCH)"

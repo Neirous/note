@@ -17,6 +17,7 @@ func main() {
 	root.PersistentFlags().StringVar(&logLevel, "log-level", "info", "log level {debug, info, warn, error}")
 
 	root.AddCommand(serverCmd())
+	root.AddCommand(grpcCmd())
 	root.AddCommand(seedCmd())
 	root.AddCommand(e2eCmd())
 

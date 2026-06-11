@@ -4,8 +4,6 @@ package note.rag.v1;
 
 option go_package = "note/api/proto/rag/v1;ragv1";
 
-import "api/proto/common/v1/common.proto";
-
 // RAGService 检索增强生成服务。
 service RAGService {
   rpc Search(SearchRequest) returns (SearchResponse);
